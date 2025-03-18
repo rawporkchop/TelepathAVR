@@ -1,0 +1,170 @@
+[
+    {
+        "name": "Light",
+        "id": 1,
+        "sliderBaseColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1,
+            "alpha": 0.8
+        },
+        "sliderTopColor": {
+            "red": 1,
+            "green": 0.83922,
+            "blue": 0.03922,
+            "alpha": 1
+        },
+        "buttonColor": {
+            "red": 0.55686,
+            "green": 0.55686,
+            "blue": 0.57647,
+            "alpha": 1
+        },
+        "textColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1,
+            "alpha": 1
+        },
+        "gradientColors": [
+            {
+                "red": 0.55686,
+                "green": 0.55686,
+                "blue": 0.57647,
+                "alpha": 1
+            },
+            {
+                "red": 0,
+                "green": 0,
+                "blue": 0,
+                "alpha": 1
+            }
+        ]
+    },
+    {
+        "name": "Dark",
+        "id": 2,
+        "sliderBaseColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1,
+            "alpha": 0.8
+        },
+        "sliderTopColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1,
+            "alpha": 1
+        },
+        "buttonColor": {
+            "red": 0.55686,
+            "green": 0.55686,
+            "blue": 0.57647,
+            "alpha": 1
+        },
+        "textColor": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 1
+        },
+        "gradientColors": [
+            {
+                "red": 0,
+                "green": 0,
+                "blue": 0,
+                "alpha": 1
+            },
+            {
+                "red": 0,
+                "green": 0,
+                "blue": 0,
+                "alpha": 1
+            }
+        ]
+    },
+    {
+        "name": "Midnight",
+        "id": 3,
+        "sliderBaseColor": {
+            "red": 0.02745,
+            "green": 0.10980,
+            "blue": 0.11764,
+            "alpha": 1
+        },
+        "sliderTopColor": {
+            "red": 0,
+            "green": 0.16862,
+            "blue": 0.17647,
+            "alpha": 1
+        },
+        "buttonColor": {
+            "red": 0.02745,
+            "green": 0.10980,
+            "blue": 0.11764,
+            "alpha": 1
+        },
+        "textColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1,
+            "alpha": 1
+        },
+        "gradientColors": [
+            {
+                "red": 0,
+                "green": 0.09019,
+                "blue": 0.15294,
+                "alpha": 1
+            },
+            {
+                "red": 0,
+                "green": 0,
+                "blue": 0,
+                "alpha": 1
+            }
+        ]
+    },
+    {
+        "name": "Sage",
+        "id": 4,
+        "sliderBaseColor": {
+            "red": 0.92941,
+            "green": 0.95686,
+            "blue": 0.94902,
+            "alpha": 0.8
+        },
+        "sliderTopColor": {
+            "red": 124,
+            "green": 131,
+            "blue": 99,
+            "alpha": 1
+        },
+        "buttonColor": {
+            "red": 0.92941,
+            "green": 0.95686,
+            "blue": 0.94902,
+            "alpha": 1
+        },
+        "textColor": {
+            "red": 0.19216,
+            "green": 0.27843,
+            "blue": 0.22745,
+            "alpha": 1
+        },
+        "gradientColors": [
+            {
+                "red": 0.19216,
+                "green": 0.27843,
+                "blue": 0.22745,
+                "alpha": 1
+            },
+            {
+                "red": 0.19216,
+                "green": 0.27843,
+                "blue": 0.22745,
+                "alpha": 1
+            }
+        ]
+    }
+]
