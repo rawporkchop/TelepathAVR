@@ -48,6 +48,7 @@ public final class SelectedReceiver: ObservableObject {
 
     
     public func save() {
+        print("attempting to save receiver")
         do {
             let data = try JSONEncoder().encode(receiver)
             UserDefaults.standard.set(data, forKey: "selectedReceiver")
@@ -68,6 +69,7 @@ public final class SelectedReceiver: ObservableObject {
         if let data = UserDefaults.standard.data(forKey: "selectedReceiver") {
             do {
                 receiver = try JSONDecoder().decode(SimpleEndpoint.self, from: data)
+                print("decoded: \(String(describing: receiver))")
             } catch {
                 print("Error decoding selectedReceiver:", error.localizedDescription)
                 receiver = nil

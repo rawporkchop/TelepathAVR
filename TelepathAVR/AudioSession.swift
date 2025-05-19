@@ -18,52 +18,56 @@ public class AudioSession: NSObject {
     private var player: AVAudioPlayer?
     private var sessionActive: Bool = false
     private var skipNext: Bool = false
-    
+
     private var maxVolume: CGFloat?
     private var minVolume: CGFloat?
-    private var activeZone: Zone = .one 
+    private var activeZone: Zone = .one
     let volumeView = MPVolumeView(frame: .zero)
-    
+
     private var audioSession = AVAudioSession.sharedInstance()
-    
+
     private override init() {
         super.init()
         volumeView.showsVolumeSlider = false
         do {
             try audioSession.setCategory(.playback, mode: .default)
-            audioSession.addObserver(self, forKeyPath: "outputVolume", options: NSKeyValueObservingOptions.new, context: nil)
+            audioSession.addObserver(
+                self, forKeyPath: "outputVolume", options: NSKeyValueObservingOptions.new,
+                context: nil)
         } catch {
             print("Failed to set the audio session configuration: \(error.localizedDescription)")
         }
     }
-    
+
     public func setActive() {
         sideVolButtonsEnabled = UserDefaults.standard.bool(forKey: "volumeSideButtonsEnabled")
         minVolume = 0
         activeZone = getActiveZone()
         maxVolume = getMaxVolume()
-        
+
         if !sideVolButtonsEnabled {
             print("Audio session disabled")
             return
         }
-        
+
         do {
             try audioSession.setActive(true)
             sessionActive = true
             startSilenceLoop()
-            
+
             print("Audio session activated")
         } catch {
             print("Failed to start audio session: \(error.localizedDescription)")
         }
     }
-    
+
     private func getActiveZone() -> Zone {
 
-        return Zone(rawValue: UserDefaults.standard.string(forKey: "selectedZone") ?? Zone.one.rawValue) ?? .one
+        return Zone(
+            rawValue: UserDefaults.standard.string(forKey: "selectedZone") ?? Zone.one.rawValue)
+            ?? .one
     }
-    
+
     private func getMaxVolume() -> CGFloat {
         let zone = getActiveZone()
         let defaults = UserDefaults.standard
@@ -73,7 +77,7 @@ public class AudioSession: NSObject {
         case .three: return CGFloat(defaults.double(forKey: "zone3VolLimit"))
         }
     }
-    
+
     public func setInactive() {
         do {
             try audioSession.setActive(false)
@@ -83,31 +87,31 @@ public class AudioSession: NSObject {
             print("Failed to stop audio session: \(error.localizedDescription)")
         }
     }
-    
+
     public func setSystemVolume(volume: CGFloat) {
-        
+
         guard let minVolume = minVolume, let maxVolume = maxVolume else {
             print("Min volume and/or max volume not initialized")
             return
         }
-        
+
         var systemVolume = Float((volume - minVolume) / (maxVolume - minVolume))
         systemVolume = max(systemVolume, 0)
-        
+
         skipNext = true
         MPVolumeView.setVolume(systemVolume)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.skipNext = false
         }
     }
-    
+
     private func startSilenceLoop() {
         DispatchQueue.global(qos: .background).async {
             let url = Bundle.main.url(forResource: "silence", withExtension: "wav")
             guard let url = url else {
                 return
             }
-            
+
             while self.sessionActive {
                 do {
                     let player = try AVAudioPlayer(contentsOf: url)
@@ -119,32 +123,34 @@ public class AudioSession: NSObject {
             }
         }
     }
-    
+
     public func isBackgroundAudioPlaying() -> Bool {
         return audioSession.isOtherAudioPlaying
     }
-    
+
     private func enqueueVolumeSide(systemVolume: Float) {
         guard let minVolume = minVolume, let maxVolume = maxVolume else {
             print("minVolume or maxVolume not initialized")
             return
         }
-        
+
         if minVolume >= maxVolume {
             print("minVolume >= maxVolume")
             return
         }
-        
-        var volume = CGFloat(systemVolume)*(maxVolume - minVolume) + minVolume
+
+        var volume = CGFloat(systemVolume) * (maxVolume - minVolume) + minVolume
         volume = max(minVolume, min(volume, maxVolume))
         activeZone = getActiveZone()
         let changedVolume = activeZone == .one ? (volume * 2).rounded() / 2 : volume.rounded()
-        
 
         connection.enqueueVolume(changedVolume, activeZone)
     }
-    
-    public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+
+    public override func observeValue(
+        forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         if keyPath == "outputVolume" {
             if skipNext == true {
                 return
@@ -156,7 +162,7 @@ public class AudioSession: NSObject {
             audioLevel = audioSession.outputVolume
         }
     }
-    
+
     deinit {
         audioSession.removeObserver(self, forKeyPath: "outputVolume")
     }
@@ -166,7 +172,7 @@ extension MPVolumeView {
     static func setVolume(_ volume: Float) {
         let volumeView = MPVolumeView()
         let slider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
             slider?.value = volume
         }
@@ -180,14 +186,14 @@ struct VolumeViewModifier: ViewModifier {
             content
         }
     }
-    
-    struct VolumeView: UIViewRepresentable{
+
+    struct VolumeView: UIViewRepresentable {
         func makeUIView(context: Context) -> MPVolumeView {
-           let volumeView = MPVolumeView(frame: CGRect.zero)
-           volumeView.alpha = 0.001
-           return volumeView
+            let volumeView = MPVolumeView(frame: CGRect.zero)
+            volumeView.alpha = 0.001
+            return volumeView
         }
-        func updateUIView(_ uiView: MPVolumeView, context: Context) { }
+        func updateUIView(_ uiView: MPVolumeView, context: Context) {}
     }
 }
 

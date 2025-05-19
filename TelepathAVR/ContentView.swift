@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
 
-    // Receivers
+    // Receiver
     @ObservedObject private var connection: Connection = TelepathAVRApp.shared.connection
     @StateObject private var selectedReceiver = TelepathAVRApp.shared.selectedReceiver
     
@@ -78,12 +78,13 @@ struct ContentView: View {
                                 HStack {
                                     Button(action: { showMenu.toggle() }) {
                                         Image(systemName: showMenu ? "xmark" : "line.3.horizontal")
-                                            .foregroundStyle(Color.primary)
+                                            .foregroundStyle(.white)
                                             .contentTransition(.symbolEffect)
                                     }
                                     Text("Demo")
                                         .visible(connection.isDemoActive)
                                         .font(.title3)
+                                        .foregroundStyle(.white)
                                 }
                             }
                         }

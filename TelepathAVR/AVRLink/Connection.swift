@@ -31,9 +31,26 @@ public enum Zone: String, CaseIterable, Identifiable {
         case .three: return 2
         }
     }
+    var defaults: String {
+        switch self {
+        case .one: return "zone1"
+        case .two: return "zone2"
+        case .three: return "zone3"
+        }
+    }
 }
 
+enum InputDevice: String, CaseIterable, Identifiable {
+    case select, cd, tuner, dvd, bd, tv
+    case sat_cbl = "sat/cbl", mplay, game
+    case hdradio, net, pandora
+    case siriusxm, spotify, lastfm
+    case flickr, iradio, server
+    case favorites, aux1, aux2
+    case aux3, aux4, aux5, aux6, aux7
 
+    var id: Self { self }
+}
 
 public class Connection: ObservableObject {
     
@@ -54,6 +71,23 @@ public class Connection: ObservableObject {
     @Published var z1: Zones? = nil
     @Published var z2: Zones? = nil
     @Published var z3: Zones? = nil
+    var zones: [Zone?] = [nil, nil, nil]
+    @Published var selectedInput: [InputDevice] = [.select, .select, .select]
+    
+    func updateZones() {
+        if !self.zones.contains(.one)
+            && z1 != nil
+        { zones[0] = .one }
+        else if z1 == nil { zones[0] = nil }
+        if !self.zones.contains(.two)
+            && z2 != nil
+        { zones[1] = .two }
+        else if z2 == nil { zones[1] = nil }
+        if !self.zones.contains(.three)
+            && z3 != nil
+        { zones[2] = .three }
+        else if z3 == nil { zones[2] = nil }
+    }
     
     let port = NWEndpoint.Port(rawValue: UInt16(23))!
     @Published var isConnected = false
@@ -98,15 +132,17 @@ public class Connection: ObservableObject {
     }
     
     func start(receiver: SimpleEndpoint?) {
+        self.updateZones()
         isDemoActive = receiver == SimpleEndpoint.demoReceiver
         print("isDemoActive \(isDemoActive)")
         
         if isDemoActive {
             connection = NWConnection(host: "DEMO", port: port, using: .tcp)
-            z1 = .init(powered: false, muted: false, volume: 40)
-            z2 = .init(powered: false, muted: false, volume: 40)
-            z3 = .init(powered: false, muted: false, volume: 40)
+            z1 = .init(powered: true, muted: false, volume: 40)
+            z2 = .init(powered: true, muted: false, volume: 40)
+            z3 = .init(powered: true, muted: false, volume: 40)
             max = 98.0
+            updateZones()
             isConnected = true
             print("Started Demo Connection")
             return
@@ -165,13 +201,14 @@ public class Connection: ObservableObject {
         z1 = nil
         z2 = nil
         z3 = nil
+        self.updateZones()
 
         return
     }
     
     func checkConnection() {
         
-        
+        self.updateZones()
         if isDemoActive {
             isConnected = true
             return
@@ -235,6 +272,7 @@ public class Connection: ObservableObject {
                 } else if str.starts(with: "MV") {
                     if self.z1 == nil { // Initialize zone 1 if not already
                         self.z1 = .init(powered: false, muted: false, volume: 0)
+                        self.updateZones()
                     }
                     
                     // MAIN Volume
@@ -244,6 +282,7 @@ public class Connection: ObservableObject {
                     // ZONE 2
                     if self.z2 == nil { // Initialize zone 2 if not already
                         self.z2 = .init(powered: false, muted: false, volume: 0)
+                        self.updateZones()
                     }
                     
                     let droppedFirst2 = str.dropFirst(2)
@@ -262,6 +301,7 @@ public class Connection: ObservableObject {
                     // ZONE3
                     if self.z3 == nil { // Initialize zone 3 if not already
                         self.z3 = .init(powered: false, muted: false, volume: 0)
+                        self.updateZones()
                     }
                     let droppedFirst2 = str.dropFirst(2)
                     
@@ -281,6 +321,7 @@ public class Connection: ObservableObject {
                 } else if str.starts(with: "ZM") {
                     if self.z2 == nil { // Initialize zone 2 if not already
                         self.z2 = .init(powered: false, muted: false, volume: 0)
+                        self.updateZones()
                     }
                     
                     // ZM State
@@ -291,6 +332,20 @@ public class Connection: ObservableObject {
                 } else if str.starts(with: "MU") {
                     self.z1?.muted = str.dropFirst(2) == "ON"
                 }
+                
+                /*
+                else if str.starts(with: "SI") {
+                    // Implement input mode reading
+                    let deviceStr = str.dropFirst(2)
+                    let inputDevice: InputDevice = InputDevice.allCases
+                        .first(where: { $0.rawValue == String(deviceStr) })
+                        ?? InputDevice.select
+                    if inputDevice != InputDevice.select
+                        && InputDevice.allCases.contains(inputDevice) {
+                        // How do you know what zone is being affected????
+                    }
+                }
+                 */
             }
 
             
@@ -326,7 +381,7 @@ public class Connection: ObservableObject {
             print("could not get vitals: connection nil")
             return
         }
-        let command = "PW?\r\nMV?\r\nZM?\r\nZ2?\r\nZ3?\r\nMU?\r\nZ2MU?\r\nZ3MU?\r\n"
+        let command = "PW?\r\nMV?\r\nZM?\r\nZ2?\r\nZ3?\r\nMU?\r\nZ2MU?\r\nZ3MU?\r\nSI?\r\n"
         let commandData = command.data(using: .utf8)!
         
         connection.send(content: commandData, completion: .contentProcessed { error in
@@ -336,6 +391,7 @@ public class Connection: ObservableObject {
                 print("Command Sent Successfully \(commandData)")
             }
         })
+        self.updateZones()
     }
     
     func enqueueVolume(_ volume: Double, _ zone: Zone) {
@@ -358,7 +414,7 @@ public class Connection: ObservableObject {
         if vol == "0" {
             vol = "00"
         }
-        
+  
         switch zone {
         case .one:
             z1Queue.enqueue(vol)
@@ -375,6 +431,38 @@ public class Connection: ObservableObject {
             z3Queue.enqueue(vol)
         }
 
+    }
+    
+    func setInputDevice(_ input: InputDevice, _ index: Int) {
+        
+        
+        if isDemoActive {
+            selectedInput[index] = input
+            return
+        }
+        guard let connection = connection else {
+            print("could not toggle power: connection nil")
+            return
+        }
+        var command: String = ""
+        switch index {
+        case 0: command = "SI\(input.rawValue)\r\n"
+        case 1: command = "Z2\(input.rawValue)\r\n"
+        case 2: command = "Z3\(input.rawValue)\r\n"
+        default:
+            print("Invalid index")
+        }
+        command = command.uppercased()
+        let commandData = command.data(using: .utf8)!
+        print(command)
+        
+        connection.send(content: commandData, completion: .contentProcessed { error in
+            if let error = error {
+                debugPrint("Error sending data: \(error)")
+            } else {
+                print("Command Sent Successfully \(commandData)")
+            }
+        })
     }
     
     func waitForMain(completion: @escaping (String) -> Void) {
@@ -413,7 +501,7 @@ public class Connection: ObservableObject {
                 }))
             }
             Task {
-                try? await Task.sleep(nanoseconds: 100_000_000)
+                try? await Task.sleep(nanoseconds: 10_000_000)
                 self.handleVolumeOne()
             }
         }
@@ -437,7 +525,7 @@ public class Connection: ObservableObject {
                 }))
             }
             Task {
-                try? await Task.sleep(nanoseconds: 100_000_000)
+                try? await Task.sleep(nanoseconds: 10_000_000)
                 self.handleVolumeTwo()
             }
         }
@@ -461,7 +549,7 @@ public class Connection: ObservableObject {
                 }))
             }
             Task {
-                try? await Task.sleep(nanoseconds: 100_000_000)
+                try? await Task.sleep(nanoseconds: 10_000_000)
                 self.handleVolumeThree()
             }
         }
@@ -469,12 +557,8 @@ public class Connection: ObservableObject {
     
     func powerToggle() {
         
-//        isDemoActive = selectedReceiver.isDemo()
-        
         if isDemoActive {
-            
-            // demo to be implemented. figure out how the power toggle works
-            return
+            return // To be implemented
         }
         guard let connection = connection else {
             print("could not toggle power: connection nil")
@@ -564,3 +648,4 @@ public class Connection: ObservableObject {
         self.getVitals()
     }
 }
+

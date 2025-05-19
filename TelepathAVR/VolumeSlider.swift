@@ -340,7 +340,7 @@ struct VolumeSlider: View {
         }
         
         percentProgress = rawPercentProgress
-        let newVolume = (percentProgress * max * 2).rounded() / 2
+        let newVolume = zone == .one ? (percentProgress * max * 2).rounded() / 2 : (percentProgress * max).rounded()
         if newVolume != volume {
             volume = newVolume
             if inProgress {
@@ -367,13 +367,13 @@ struct VolumeSlider: View {
         updateVolume(with: max(0, min(rawPercentProgress, effectivePercentLimit)))
         inProgress = false
         
-        let newVolume = (percentProgress * maxVol * 2).rounded() / 2
+        let newVolume = zone == .one ? (percentProgress * maxVol * 2).rounded() / 2 : (percentProgress * maxVol).rounded()
         endedVolume = newVolume
         
         guard let progress = zonePercentProgress else {
             return
         }
-        let zoneVolume = (progress * maxVol * 2).rounded() / 2
+        let zoneVolume = zone == .one ? (progress * maxVol * 2).rounded() / 2 : (progress * maxVol).rounded()
         if zoneVolume == endedVolume {
             hasReachedEndedValue = true
         }

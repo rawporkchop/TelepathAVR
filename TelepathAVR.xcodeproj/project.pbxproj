@@ -21,21 +21,62 @@
 			remoteGlobalIDString = A755BF9C2D34D62E0084B87F;
 			remoteInfo = TelepathAVR;
 		};
+		A7A5D2802DC15415001F6C24 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A755BF952D34D62E0084B87F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A7A5D26E2DC15414001F6C24;
+			remoteInfo = TelepathAVRMac;
+		};
+		A7A5D28A2DC15415001F6C24 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A755BF952D34D62E0084B87F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A7A5D26E2DC15414001F6C24;
+			remoteInfo = TelepathAVRMac;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		A753DC9B2D8C704E00DB631B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		A753DC862D8C704D00DB631B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		A753DC882D8C704D00DB631B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		A755BF9D2D34D62E0084B87F /* TelepathAVR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TelepathAVR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A755BFAD2D34D6300084B87F /* TelepathAVRTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TelepathAVRTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A755BFB72D34D6300084B87F /* TelepathAVRUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TelepathAVRUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7A5D26F2DC15414001F6C24 /* TelepathAVRMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TelepathAVRMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7A5D27F2DC15415001F6C24 /* TelepathAVRMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TelepathAVRMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7A5D2892DC15415001F6C24 /* TelepathAVRMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TelepathAVRMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A7B7D65F2D39F71F00EC1084 /* Exceptions for "TelepathAVR" folder in "TelepathAVR" target */ = {
+		A781C67A2DDBACF1006B0C0C /* Exceptions for "TelepathAVR" folder in "TelepathAVR" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				"Preview Content/Preview Assets.xcassets",
 			);
 			target = A755BF9C2D34D62E0084B87F /* TelepathAVR */;
+		};
+		A7A5D2A12DC15655001F6C24 /* Exceptions for "TelepathAVR" folder in "TelepathAVRMac" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AVRLink/Browser.swift,
+				AVRLink/Connection.swift,
+				AVRLink/SimpleEndpoint.swift,
+			);
+			target = A7A5D26E2DC15414001F6C24 /* TelepathAVRMac */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -43,7 +84,8 @@
 		A755BF9F2D34D62E0084B87F /* TelepathAVR */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				A7B7D65F2D39F71F00EC1084 /* Exceptions for "TelepathAVR" folder in "TelepathAVR" target */,
+				A781C67A2DDBACF1006B0C0C /* Exceptions for "TelepathAVR" folder in "TelepathAVR" target */,
+				A7A5D2A12DC15655001F6C24 /* Exceptions for "TelepathAVR" folder in "TelepathAVRMac" target */,
 			);
 			path = TelepathAVR;
 			sourceTree = "<group>";
@@ -56,6 +98,21 @@
 		A755BFBA2D34D6300084B87F /* TelepathAVRUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TelepathAVRUITests;
+			sourceTree = "<group>";
+		};
+		A7A5D2702DC15414001F6C24 /* TelepathAVRMac */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TelepathAVRMac;
+			sourceTree = "<group>";
+		};
+		A7A5D2822DC15415001F6C24 /* TelepathAVRMacTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TelepathAVRMacTests;
+			sourceTree = "<group>";
+		};
+		A7A5D28C2DC15415001F6C24 /* TelepathAVRMacUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TelepathAVRMacUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -82,15 +139,49 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A7A5D26C2DC15414001F6C24 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A5D27C2DC15415001F6C24 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A5D2862DC15415001F6C24 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A753DC852D8C704D00DB631B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A753DC862D8C704D00DB631B /* WidgetKit.framework */,
+				A753DC882D8C704D00DB631B /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		A755BF942D34D62E0084B87F = {
 			isa = PBXGroup;
 			children = (
 				A755BF9F2D34D62E0084B87F /* TelepathAVR */,
 				A755BFB02D34D6300084B87F /* TelepathAVRTests */,
 				A755BFBA2D34D6300084B87F /* TelepathAVRUITests */,
+				A7A5D2702DC15414001F6C24 /* TelepathAVRMac */,
+				A7A5D2822DC15415001F6C24 /* TelepathAVRMacTests */,
+				A7A5D28C2DC15415001F6C24 /* TelepathAVRMacUITests */,
+				A753DC852D8C704D00DB631B /* Frameworks */,
 				A755BF9E2D34D62E0084B87F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -101,6 +192,9 @@
 				A755BF9D2D34D62E0084B87F /* TelepathAVR.app */,
 				A755BFAD2D34D6300084B87F /* TelepathAVRTests.xctest */,
 				A755BFB72D34D6300084B87F /* TelepathAVRUITests.xctest */,
+				A7A5D26F2DC15414001F6C24 /* TelepathAVRMac.app */,
+				A7A5D27F2DC15415001F6C24 /* TelepathAVRMacTests.xctest */,
+				A7A5D2892DC15415001F6C24 /* TelepathAVRMacUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,6 +209,7 @@
 				A755BF992D34D62E0084B87F /* Sources */,
 				A755BF9A2D34D62E0084B87F /* Frameworks */,
 				A755BF9B2D34D62E0084B87F /* Resources */,
+				A753DC9B2D8C704E00DB631B /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -176,6 +271,74 @@
 			productReference = A755BFB72D34D6300084B87F /* TelepathAVRUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		A7A5D26E2DC15414001F6C24 /* TelepathAVRMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7A5D2912DC15415001F6C24 /* Build configuration list for PBXNativeTarget "TelepathAVRMac" */;
+			buildPhases = (
+				A7A5D26B2DC15414001F6C24 /* Sources */,
+				A7A5D26C2DC15414001F6C24 /* Frameworks */,
+				A7A5D26D2DC15414001F6C24 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A7A5D2702DC15414001F6C24 /* TelepathAVRMac */,
+			);
+			name = TelepathAVRMac;
+			packageProductDependencies = (
+			);
+			productName = TelepathAVRMac;
+			productReference = A7A5D26F2DC15414001F6C24 /* TelepathAVRMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A7A5D27E2DC15415001F6C24 /* TelepathAVRMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7A5D2942DC15415001F6C24 /* Build configuration list for PBXNativeTarget "TelepathAVRMacTests" */;
+			buildPhases = (
+				A7A5D27B2DC15415001F6C24 /* Sources */,
+				A7A5D27C2DC15415001F6C24 /* Frameworks */,
+				A7A5D27D2DC15415001F6C24 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A7A5D2812DC15415001F6C24 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A7A5D2822DC15415001F6C24 /* TelepathAVRMacTests */,
+			);
+			name = TelepathAVRMacTests;
+			packageProductDependencies = (
+			);
+			productName = TelepathAVRMacTests;
+			productReference = A7A5D27F2DC15415001F6C24 /* TelepathAVRMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A7A5D2882DC15415001F6C24 /* TelepathAVRMacUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7A5D2972DC15415001F6C24 /* Build configuration list for PBXNativeTarget "TelepathAVRMacUITests" */;
+			buildPhases = (
+				A7A5D2852DC15415001F6C24 /* Sources */,
+				A7A5D2862DC15415001F6C24 /* Frameworks */,
+				A7A5D2872DC15415001F6C24 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A7A5D28B2DC15415001F6C24 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A7A5D28C2DC15415001F6C24 /* TelepathAVRMacUITests */,
+			);
+			name = TelepathAVRMacUITests;
+			packageProductDependencies = (
+			);
+			productName = TelepathAVRMacUITests;
+			productReference = A7A5D2892DC15415001F6C24 /* TelepathAVRMacUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -183,7 +346,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					A755BF9C2D34D62E0084B87F = {
@@ -196,6 +359,17 @@
 					A755BFB62D34D6300084B87F = {
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = A755BF9C2D34D62E0084B87F;
+					};
+					A7A5D26E2DC15414001F6C24 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					A7A5D27E2DC15415001F6C24 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = A7A5D26E2DC15414001F6C24;
+					};
+					A7A5D2882DC15415001F6C24 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = A7A5D26E2DC15414001F6C24;
 					};
 				};
 			};
@@ -216,6 +390,9 @@
 				A755BF9C2D34D62E0084B87F /* TelepathAVR */,
 				A755BFAC2D34D6300084B87F /* TelepathAVRTests */,
 				A755BFB62D34D6300084B87F /* TelepathAVRUITests */,
+				A7A5D26E2DC15414001F6C24 /* TelepathAVRMac */,
+				A7A5D27E2DC15415001F6C24 /* TelepathAVRMacTests */,
+				A7A5D2882DC15415001F6C24 /* TelepathAVRMacUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -236,6 +413,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A755BFB52D34D6300084B87F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A5D26D2DC15414001F6C24 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A5D27D2DC15415001F6C24 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A5D2872DC15415001F6C24 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -266,6 +464,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A7A5D26B2DC15414001F6C24 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A5D27B2DC15415001F6C24 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7A5D2852DC15415001F6C24 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -278,6 +497,16 @@
 			isa = PBXTargetDependency;
 			target = A755BF9C2D34D62E0084B87F /* TelepathAVR */;
 			targetProxy = A755BFB82D34D6300084B87F /* PBXContainerItemProxy */;
+		};
+		A7A5D2812DC15415001F6C24 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A7A5D26E2DC15414001F6C24 /* TelepathAVRMac */;
+			targetProxy = A7A5D2802DC15415001F6C24 /* PBXContainerItemProxy */;
+		};
+		A7A5D28B2DC15415001F6C24 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A7A5D26E2DC15414001F6C24 /* TelepathAVRMac */;
+			targetProxy = A7A5D28A2DC15415001F6C24 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -407,12 +636,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0519202501;
 				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVR/Preview Content\"";
 				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TelepathAVR/Info.plist;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_CFBundleDisplayName = TelepathAVR;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Network Connection Required to Communicate with Receiver";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -423,9 +653,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathAVR;
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = startup.Telepath;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -438,12 +672,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0519202501;
 				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVR/Preview Content\"";
 				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TelepathAVR/Info.plist;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_CFBundleDisplayName = TelepathAVR;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Network Connection Required to Communicate with Receiver";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -454,9 +689,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathAVR;
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = startup.Telepath;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -475,6 +714,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathAVRTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -494,6 +737,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathAVRTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -511,6 +758,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathAVRUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -528,10 +779,148 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathAVRUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = TelepathAVR;
+			};
+			name = Release;
+		};
+		A7A5D2922DC15415001F6C24 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TelepathAVRMac/TelepathAVRMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 0519202501;
+				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVRMac/Preview Content\"";
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TelepathAVR;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oliverkl.TelepathAVRMac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A7A5D2932DC15415001F6C24 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TelepathAVRMac/TelepathAVRMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 0519202501;
+				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVRMac/Preview Content\"";
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TelepathAVR;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oliverkl.TelepathAVRMac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A7A5D2952DC15415001F6C24 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oliverkl.TelepathAVRMacTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TelepathAVRMac.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TelepathAVRMac";
+			};
+			name = Debug;
+		};
+		A7A5D2962DC15415001F6C24 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oliverkl.TelepathAVRMacTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TelepathAVRMac.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TelepathAVRMac";
+			};
+			name = Release;
+		};
+		A7A5D2982DC15415001F6C24 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oliverkl.TelepathAVRMacUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = TelepathAVRMac;
+			};
+			name = Debug;
+		};
+		A7A5D2992DC15415001F6C24 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oliverkl.TelepathAVRMacUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = TelepathAVRMac;
 			};
 			name = Release;
 		};
@@ -570,6 +959,33 @@
 			buildConfigurations = (
 				A755BFC82D34D6300084B87F /* Debug */,
 				A755BFC92D34D6300084B87F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A7A5D2912DC15415001F6C24 /* Build configuration list for PBXNativeTarget "TelepathAVRMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7A5D2922DC15415001F6C24 /* Debug */,
+				A7A5D2932DC15415001F6C24 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A7A5D2942DC15415001F6C24 /* Build configuration list for PBXNativeTarget "TelepathAVRMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7A5D2952DC15415001F6C24 /* Debug */,
+				A7A5D2962DC15415001F6C24 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A7A5D2972DC15415001F6C24 /* Build configuration list for PBXNativeTarget "TelepathAVRMacUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7A5D2982DC15415001F6C24 /* Debug */,
+				A7A5D2992DC15415001F6C24 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
