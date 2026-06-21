@@ -9,7 +9,8 @@ import SwiftUI
 
 
 struct MaxVolumeSlider: View {
-    
+
+    @ObservedObject var connection: Connection = TelepathAVRMacApp.shared.connection
     @State private var translationStartPoint: CGFloat = 0
     
     // Zone Specific Attributes
@@ -72,15 +73,29 @@ struct MaxVolumeSlider: View {
                 }
             )
         }
+        .onChange(of: connection.max) {
+            setMax(connection.max)
+            initialize()
+        }
         .onAppear() {
+            setMax(connection.max)
             initialize()
         }
     }
+    private func setMax(_ newMax: Double?) {
+        guard let newMax = newMax, newMax > 0 else { return }
+        maxTheoreticalVolume = newMax
+    }
+
     private func initialize() {
-        
         cappedVolume = UserDefaults.standard.double(forKey: "\(zone.defaults)VolLimit")
-        percentProgress = cappedVolume / (maxTheoreticalVolume ?? 98.0)
-        percentProgress = min(1, max(0, percentProgress))
+        let maxVol = maxTheoreticalVolume ?? 98.0
+        // Migrate any cap persisted on the old hardcoded-98 scale down to the real
+        // receiver max so VolumeSlider's effectivePercentLimit (cappedVolume / maxVol)
+        // can never exceed 1 and silently disable the cap.
+        cappedVolume = min(cappedVolume, maxVol)
+        UserDefaults.standard.set(cappedVolume, forKey: "\(zone.defaults)VolLimit")
+        percentProgress = min(1, max(0, cappedVolume / maxVol))
     }
     
     private func handleEndGesture() {

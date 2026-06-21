@@ -93,7 +93,12 @@ public class Connection: ObservableObject {
     @Published var isConnected = false
     
     private var connection: NWConnection?
-    
+
+    // Reassembly buffer for the inbound TCP stream; only touched on the main queue.
+    private var rxBuffer = Data()
+    // Owned, cancellable volume-send loops (one per zone) bound to a connection.
+    private var volumeTasks: [Task<Void, Never>] = []
+
     struct Queue<T> {
         private var elements: [T] = []
         private let queueLock = NSLock()  // Lock for thread safety
@@ -137,6 +142,9 @@ public class Connection: ObservableObject {
         print("isDemoActive \(isDemoActive)")
         
         if isDemoActive {
+            // Entering demo returns early (no stop()); stop any real-connection pumps.
+            volumeTasks.forEach { $0.cancel() }
+            volumeTasks = []
             connection = NWConnection(host: "DEMO", port: port, using: .tcp)
             z1 = .init(powered: true, muted: false, volume: 40)
             z2 = .init(powered: true, muted: false, volume: 40)
@@ -170,16 +178,11 @@ public class Connection: ObservableObject {
                 }
                 // Update isConnected state or perform other actions upon successful connection
                 self.isConnected = true
-                DispatchQueue.global(qos: .userInitiated).async {
-                    self.handleVolumeOne()
-                    self.handleVolumeTwo()
-                    self.handleVolumeThree()
-                    
-                    self.connection!.receive(minimumIncompleteLength: 1, maximumLength: 10000) { content, _, _, _ in
-                        if let content = content {
-                            self.processReceiveData(content: content, connection: self.connection!)
-                        }
-                    }
+                self.startVolumePumps(on: newConnection)
+
+                newConnection.receive(minimumIncompleteLength: 1, maximumLength: 10000) { [weak self] content, _, _, _ in
+                    guard let self, let content else { return }
+                    self.processReceiveData(content: content, connection: newConnection)
                 }
                                     
             default:
@@ -193,9 +196,12 @@ public class Connection: ObservableObject {
         connection = newConnection
     }
     func stop() {
+        volumeTasks.forEach { $0.cancel() }
+        volumeTasks = []
         connection?.cancel()
         self.isConnected = false
         connection = nil
+        rxBuffer.removeAll()
         powered = false
         max = nil
         z1 = nil
@@ -255,8 +261,23 @@ public class Connection: ObservableObject {
     func processReceiveData(content: Data, connection: NWConnection){
         DispatchQueue.main.async {
             
-            let str = String(data: content, encoding: .utf8)!
-            let commands = str.split(separator: "\r")
+            self.rxBuffer.append(content)
+
+            // Extract only complete, CR-terminated frames; any trailing partial bytes
+            // stay buffered so a command split across TCP reads is reassembled, and each
+            // frame is decoded non-failably so a partial/invalid UTF-8 chunk can't crash.
+            var commands: [Substring] = []
+            while let crIndex = self.rxBuffer.firstIndex(of: 0x0D) {
+                let frameData = self.rxBuffer[self.rxBuffer.startIndex..<crIndex]
+                self.rxBuffer.removeSubrange(self.rxBuffer.startIndex ..< self.rxBuffer.index(after: crIndex))
+                let line = String(decoding: frameData, as: UTF8.self)
+                if !line.isEmpty { commands.append(Substring(line)) }
+            }
+            // Bound growth: an un-terminated remainder this large means no terminator is
+            // coming (garbage / non-protocol peer) — drop it so the buffer can't grow forever.
+            if self.rxBuffer.count > 65536 {
+                self.rxBuffer.removeAll(keepingCapacity: true)
+            }
             
             commands.forEach { str in
                 if str.starts(with: "MVMAX ") {
@@ -349,11 +370,11 @@ public class Connection: ObservableObject {
             }
 
             
-            // Persistant recieve data
-            self.connection?.receive(minimumIncompleteLength: 1, maximumLength: 10000) { content, _, _, _ in
-                if let content = content {
-                    self.processReceiveData(content: content, connection: self.connection!)
-                }
+            // Persistent receive — keep reading only while this is still the active connection.
+            guard self.connection === connection else { return }
+            connection.receive(minimumIncompleteLength: 1, maximumLength: 10000) { [weak self] content, _, _, _ in
+                guard let self, let content else { return }
+                self.processReceiveData(content: content, connection: connection)
             }
         }
     }
@@ -465,96 +486,36 @@ public class Connection: ObservableObject {
         })
     }
     
-    func waitForMain(completion: @escaping (String) -> Void) {
-        if let value = z1Queue.last() {
-            completion(value)
-        }
-    }
-    func waitForTwo(completion: @escaping (String) -> Void) {
-        if let value = z2Queue.last() {
-            completion(value)
-        }
-    }
-    func waitForThree(completion: @escaping (String) -> Void) {
-        if let value = z3Queue.last() {
-            completion(value)
+    
+    // Per-zone volume pump: coalesces rapid slider updates and sends the latest value at
+    // ~100Hz on the given connection. Owned by `volumeTasks` and cancelled in stop(), so it
+    // never accumulates across reconnects (replaces the old self-rescheduling handleVolume*).
+    private func startVolumePumps(on connection: NWConnection) {
+        volumeTasks.forEach { $0.cancel() }
+        let zones: [(zone: Zone, prefix: String)] = [(.one, "MV"), (.two, "Z2"), (.three, "Z3")]
+        volumeTasks = zones.map { pair in
+            Task.detached(priority: .utility) { [weak self] in
+                while !Task.isCancelled {
+                    if let value = self?.dequeueVolume(pair.zone) {
+                        connection.send(content: ("\(pair.prefix)\(value)\r").data(using: .utf8)!,
+                                        completion: .contentProcessed { error in
+                            if let error = error { print("Send error: \(error)") }
+                        })
+                    }
+                    try? await Task.sleep(nanoseconds: 10_000_000)
+                }
+            }
         }
     }
 
-    
-    func handleVolumeOne() {
-    
-        DispatchQueue.global(qos: .background).async {
-            self.waitForMain { value in
-                
-                guard let connection = self.connection else {
-                    print("Connection is not established.")
-                    self.handleVolumeOne()
-                    return
-                }
-                let commandData = ("MV\(value)").data(using: .utf8)!
-                
-                connection.send(content: commandData, completion: .contentProcessed({ error in
-                    if let error = error {
-                        print("Send error: \(error)")
-                    }
-                }))
-            }
-            Task {
-                try? await Task.sleep(nanoseconds: 10_000_000)
-                self.handleVolumeOne()
-            }
+    private func dequeueVolume(_ zone: Zone) -> String? {
+        switch zone {
+        case .one: return z1Queue.last()
+        case .two: return z2Queue.last()
+        case .three: return z3Queue.last()
         }
     }
-    func handleVolumeTwo() {
-        DispatchQueue.global(qos: .background).async {
-            self.waitForTwo { value in
-                
-                guard let connection = self.connection else {
-                    print("Connection is not established.")
-                    self.handleVolumeTwo()
-                    return
-                }
-                
-                let commandData = ("Z2\(value)").data(using: .utf8)!
-                
-                connection.send(content: commandData, completion: .contentProcessed({ error in
-                    if let error = error {
-                        print("Send error: \(error)")
-                    }
-                }))
-            }
-            Task {
-                try? await Task.sleep(nanoseconds: 10_000_000)
-                self.handleVolumeTwo()
-            }
-        }
-    }
-    func handleVolumeThree() {
-    
-        DispatchQueue.global(qos: .background).async {
-            self.waitForThree { value in
-                
-                guard let connection = self.connection else {
-                    print("Connection is not established.")
-                    self.handleVolumeThree()
-                    return
-                }
-                let commandData = ("Z3\(value)").data(using: .utf8)!
-                
-                connection.send(content: commandData, completion: .contentProcessed({ error in
-                    if let error = error {
-                        print("Send error: \(error)")
-                    }
-                }))
-            }
-            Task {
-                try? await Task.sleep(nanoseconds: 10_000_000)
-                self.handleVolumeThree()
-            }
-        }
-    }
-    
+
     func powerToggle() {
         
         if isDemoActive {
@@ -565,7 +526,7 @@ public class Connection: ObservableObject {
             return
         }
         let command = powered ? "PWSTANDBY" : "PWON"
-        let commandData = command.data(using: .utf8)!
+        let commandData = (command + "\r").data(using: .utf8)!
         print("powertoggle")
         
         connection.send(content: commandData, completion: .contentProcessed { error in
@@ -601,7 +562,7 @@ public class Connection: ObservableObject {
         case .two: command = z2?.powered ?? true ? "Z2OFF" : "Z2ON"
         case .three: command = z3?.powered ?? true ? "Z3OFF" : "Z3ON"
         }
-        let commandData = command.data(using: .utf8)!
+        let commandData = (command + "\r").data(using: .utf8)!
         
         print(command)
         
@@ -636,7 +597,7 @@ public class Connection: ObservableObject {
         case .two: command = z2?.muted ?? true ? "Z2MUOFF" : "Z2MUON"
         case .three: command = z3?.muted ?? true ? "Z3MUOFF" : "Z3MUON"
         }
-        let commandData = command.data(using: .utf8)!
+        let commandData = (command + "\r").data(using: .utf8)!
         
         connection.send(content: commandData, completion: .contentProcessed { error in
             if let error = error {

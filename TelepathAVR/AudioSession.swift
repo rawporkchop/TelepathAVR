@@ -151,15 +151,17 @@ public class AudioSession: NSObject {
         forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?,
         context: UnsafeMutableRawPointer?
     ) {
-        if keyPath == "outputVolume" {
-            if skipNext == true {
-                return
+        guard keyPath == "outputVolume" else { return }
+        let newVolume = AVAudioSession.sharedInstance().outputVolume
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            // Always track the latest level (even when skipping) so a programmatic
+            // setSystemVolume() change doesn't leave audioLevel stale.
+            defer { self.audioLevel = newVolume }
+            if self.skipNext { return }
+            if newVolume != self.audioLevel {
+                self.enqueueVolumeSide(systemVolume: newVolume)
             }
-            let audioSession = AVAudioSession.sharedInstance()
-            if audioSession.outputVolume != audioLevel {
-                enqueueVolumeSide(systemVolume: audioSession.outputVolume)
-            }
-            audioLevel = audioSession.outputVolume
         }
     }
 
