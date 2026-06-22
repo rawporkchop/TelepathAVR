@@ -7,9 +7,14 @@
 
 import SwiftUI
 
+/// A left-edge side menu (drawer). The menu is a conditionally-rendered overlay layer that
+/// slides in via a transition, so it is always inside its own hit-test frame and its buttons
+/// are reliably tappable. (The previous GeometryReader-offset implementation did not re-render
+/// on a runtime `showMenu` change on iOS 26, and when made to slide it pushed the menu outside
+/// the GeometryReader's hit-test frame, leaving the menu items dead.)
 struct AnimatedSideBar<Content: View, MenuView: View, Background: View>: View {
-    
-    // Customization
+
+    // Customization (kept for API compatibility with the call site)
     @Binding var rotatesWhenExpands: Bool
     var disablesInteraction: Bool = true
     var sideMenuWidth: CGFloat = 200
@@ -18,115 +23,50 @@ struct AnimatedSideBar<Content: View, MenuView: View, Background: View>: View {
     @ViewBuilder var content: (UIEdgeInsets) -> Content
     @ViewBuilder var menuView: (UIEdgeInsets) -> MenuView
     @ViewBuilder var background: Background
-    
-    // View Properties
-    @GestureState private var isDragging: Bool = false
-    @State private var offsetX: CGFloat = 0
-    @State private var lastOffsetX: CGFloat = 0
-    
-    // Used to Dim Content When Side Bar is Active
-    @State private var progress: CGFloat = 0
-    var body: some View {
-        GeometryReader {
-            let size = $0.size
-            let safeArea = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow?.safeAreaInsets ?? .zero
-            
-            HStack(spacing: 0) {
-                GeometryReader { _ in
-                    menuView(safeArea)
-                    
-                }
-                .frame(width: sideMenuWidth)
 
-                // Clipping Menu Interaction beyond its width
-                .contentShape(.rect)
-                
-                GeometryReader { _ in
-                    content(safeArea)
-                }
-                .frame(width: size.width)
+    private var safeArea: UIEdgeInsets {
+        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow?.safeAreaInsets ?? .zero
+    }
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            // Main content fills the screen and slides/scales aside when the menu is open.
+            content(safeArea)
+                .scaleEffect(rotatesWhenExpands && showMenu ? 0.92 : 1, anchor: .trailing)
+                .offset(x: showMenu ? sideMenuWidth * 0.6 : 0)
                 .overlay {
-                    if disablesInteraction && progress > 0 {
+                    if disablesInteraction && showMenu {
                         Rectangle()
-                            .fill(.black.opacity(progress * 0.2))
-                            .onTapGesture {
-                                withAnimation(.snappy(duration: 0.3, extraBounce: 0)) {
-                                    reset()
-                                }
-                            }
+                            .fill(.black.opacity(0.35))
+                            .ignoresSafeArea()
+                            .onTapGesture { showMenu = false }
+                            .transition(.opacity)
                     }
                 }
-                .mask {
-                    RoundedRectangle(cornerRadius: progress * cornerRadius)
+
+            // The drawer: a separate overlay layer, so its buttons are always hittable.
+            if showMenu {
+                ZStack {
+                    background
+                    menuView(safeArea)
                 }
-                .scaleEffect(rotatesWhenExpands ? 1 - (progress * 0.1) : 1, anchor: .trailing)
-                .rotation3DEffect(
-                    .init(degrees: rotatesWhenExpands ? (progress * -15) : 0), axis: (x: 0.0, y: 1.0, z: 0.0)
-                )
-            }
-            .frame(width: size.width + sideMenuWidth, height: size.height)
-            .offset(x: -sideMenuWidth)
-            .offset(x: offsetX)
-            .contentShape(.rect)
-            .gesture(dragGesture)
-        }
-        .background(background)
-        .ignoresSafeArea()
-        .onChange(of: showMenu, initial: true) { oldValue, newValue in
-            withAnimation(.snappy(duration: 0.3, extraBounce: 0)) {
-                if newValue {
-                    showSideBar()
-                } else {
-                    reset()
-                }
+                .frame(maxHeight: .infinity)
+                .frame(width: sideMenuWidth)
+                .transition(.move(edge: .leading))
             }
         }
-    }
-    
-    // Drag Gesture
-    var dragGesture: some Gesture {
-        DragGesture()
-            .updating($isDragging) { _, out, _ in
-                out = true
-            }.onChanged { value in
-                guard value.startLocation.x < 50 || showMenu else { return }
-                
-                let translationX = isDragging ? max(min(value.translation.width + lastOffsetX, sideMenuWidth), 0) : 0
-                offsetX = translationX
-                calculateProgress()
-            }.onEnded { value in
-                guard value.startLocation.x < 50 || showMenu else { return }
-                
-                withAnimation(.snappy(duration: 0.3, extraBounce: 0)) {
-                    let velocityX = value.velocity.width / 8
-                    let total = velocityX + offsetX
-                    
-                    if total > (sideMenuWidth * 0.5) {
-                        showSideBar()
-                    } else {
-                        reset()
+        .animation(.snappy(duration: 0.3, extraBounce: 0), value: showMenu)
+        // Edge-swipe to open, swipe to close. Low-priority so child controls (sliders) win.
+        .gesture(
+            DragGesture(minimumDistance: 20)
+                .onEnded { value in
+                    if !showMenu, value.startLocation.x < 50, value.translation.width > 60 {
+                        showMenu = true
+                    } else if showMenu, value.translation.width < -60 {
+                        showMenu = false
                     }
                 }
-            }
-    }
-    
-    func showSideBar() {
-        offsetX = sideMenuWidth
-        lastOffsetX = offsetX
-        showMenu = true
-        calculateProgress()
-    }
-    
-    func reset() {
-        offsetX = 0
-        lastOffsetX = 0
-        showMenu = false
-        calculateProgress()
-    }
-    
-    // Offset into progress percent
-    func calculateProgress() {
-        progress = max(min(offsetX / sideMenuWidth, 1), 0)
+        )
     }
 }
 

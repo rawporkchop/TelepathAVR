@@ -37,16 +37,16 @@ struct ContentView: View {
     @State private var lastXDragValue: CGFloat = 0
     @State private var lastYDragValue: CGFloat = 0
     @State private var isResizing: Bool = false
+    @State private var screenSize: CGSize = UIScreen.main.bounds.size
     
     // Tutorial
     @AppStorage("showingAlert") private var showingAlert = true
     
     var body: some View {
-        GeometryReader { geometry in
-            let height = geometry.size.height + zoneHeightsOffset
-            let width = geometry.size.width
-            
-            AnimatedSideBar(
+        let height = screenSize.height + zoneHeightsOffset
+        let width = screenSize.width
+
+        return AnimatedSideBar(
                 rotatesWhenExpands: $rotatesWhenExpands,
                 disablesInteraction: true,
                 sideMenuWidth: 200,
@@ -54,8 +54,6 @@ struct ContentView: View {
                 showMenu: $showMenu
             ) { safeArea in
                 NavigationStack {
-                    NavigationLink(destination: GeneralView(), isActive: $showGeneralView) { EmptyView() }
-                    
                     ZStack {
                         RadialGradient(
                             gradient: Gradient(colors: gradientColors),
@@ -67,9 +65,9 @@ struct ContentView: View {
                         
                         // Volume Sliders
                         HStack {
-                            resizableSlider(zone: .one, geometry: geometry, height: height, width: width)
-                            resizableSlider(zone: .two, geometry: geometry, height: height, width: width)
-                            resizableSlider(zone: .three, geometry: geometry, height: height, width: width)
+                            resizableSlider(zone: .one, size: screenSize, height: height, width: width)
+                            resizableSlider(zone: .two, size: screenSize, height: height, width: width)
+                            resizableSlider(zone: .three, size: screenSize, height: height, width: width)
                         }
                         
                         // Tool Bar Button
@@ -81,6 +79,7 @@ struct ContentView: View {
                                             .foregroundStyle(.white)
                                             .contentTransition(.symbolEffect)
                                     }
+                                    .accessibilityIdentifier("menuButton")
                                     Text("Demo")
                                         .visible(connection.isDemoActive)
                                         .font(.title3)
@@ -101,6 +100,7 @@ struct ContentView: View {
             } background: {
                 Rectangle().fill(.sideMenu)
             }
+            .id("\(showMenu)-\(showThemeView)")
             .onAppear {
                 initializeApp()
             }
@@ -112,7 +112,14 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showReceiversSheet) { ReceiversView().environmentObject(connection) }
             .sheet(isPresented: $showAboutSheet) { AboutView() }
-        }
+            .sheet(isPresented: $showGeneralView) { GeneralView() }
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { screenSize = geo.size }
+                        .onChange(of: geo.size) { screenSize = geo.size }
+                }
+            )
         .alert("Proceed to connect to an audio receiver?", isPresented: $showingAlert) {
             Button("Continue") {
                 showMenu = true
@@ -252,7 +259,7 @@ struct ContentView: View {
         }
     }
     
-    func resizableSlider(zone: Zone, geometry: GeometryProxy, height: CGFloat, width: CGFloat) -> some View {
+    func resizableSlider(zone: Zone, size: CGSize, height: CGFloat, width: CGFloat) -> some View {
         VolumeSlider(zone: zone)
             .frame(maxWidth: zoneWidths, maxHeight: height)
             .offset(x: zonesShowing.contains(zone) ? 0 : width)
@@ -265,7 +272,7 @@ struct ContentView: View {
                     .frame(width: 40, height: 40)
                     .highPriorityGesture(DragGesture(minimumDistance: 0)
                         .onChanged { value in
-                            handleSliderResize(value, geometry: geometry)
+                            handleSliderResize(value, size: size)
                         }
                         .onEnded { _ in
                             resetResizing()
@@ -287,17 +294,17 @@ struct ContentView: View {
         }
     }
     
-    private func handleSliderResize(_ value: DragGesture.Value, geometry: GeometryProxy) {
+    private func handleSliderResize(_ value: DragGesture.Value, size: CGSize) {
         guard resizeable else { return }
         isResizing = true
         let xTranslation = value.translation.width - lastXDragValue
         zoneWidths += xTranslation
-        zoneWidths = max(120, min(geometry.size.width, zoneWidths))
+        zoneWidths = max(120, min(size.width, zoneWidths))
         lastXDragValue = value.translation.width
-        
+
         let yTranslation = value.translation.height - lastYDragValue
         zoneHeightsOffset += yTranslation
-        zoneHeightsOffset = max(-geometry.size.height / 2, min(0, zoneHeightsOffset))
+        zoneHeightsOffset = max(-size.height / 2, min(0, zoneHeightsOffset))
         lastYDragValue = value.translation.height
     }
     
