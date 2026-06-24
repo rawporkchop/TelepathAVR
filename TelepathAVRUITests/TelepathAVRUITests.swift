@@ -25,6 +25,23 @@ final class TelepathAVRUITests: XCTestCase {
         return app
     }
 
+    // Open the drawer with a left-to-right swipe starting at the leading edge (the swipe
+    // replaced the old hamburger button).
+    @MainActor
+    private func openMenu(_ app: XCUIApplication) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+
+    // Close the drawer with a right-to-left swipe over the dimmed content.
+    @MainActor
+    private func closeMenu(_ app: XCUIApplication) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+
     // The menu's visibility is best detected via isHittable (the menu may exist off-screen).
     @MainActor
     private func waitUntilHittable(_ element: XCUIElement,
@@ -41,26 +58,23 @@ final class TelepathAVRUITests: XCTestCase {
         XCTAssertEqual(element.isHittable, expected, message, file: file, line: line)
     }
 
-    // Tapping the hamburger must OPEN the menu, tapping again must CLOSE it, and the app must
+    // A left-edge swipe must OPEN the menu, a reverse swipe must CLOSE it, and the app must
     // stay interactive across the cycle (guards the "all UI frozen after toggling" regression).
     @MainActor
-    func testHamburgerOpensAndClosesMenu() throws {
+    func testSwipeOpensAndClosesMenu() throws {
         let app = launchApp()
-
-        let menuButton = app.buttons["menuButton"]
-        XCTAssertTrue(menuButton.waitForExistence(timeout: 5), "Hamburger button should exist")
 
         let settings = app.staticTexts["Settings"]
         waitUntilHittable(settings, false, "Side menu should start closed")
 
-        menuButton.tap()
-        waitUntilHittable(settings, true, "Tapping the hamburger should OPEN the side menu")
+        openMenu(app)
+        waitUntilHittable(settings, true, "Left-edge swipe should OPEN the side menu")
         XCTAssertTrue(app.buttons["Receivers"].isHittable, "Menu items should be reachable when open")
 
-        menuButton.tap()
-        waitUntilHittable(settings, false, "Tapping the hamburger again should CLOSE the side menu")
+        closeMenu(app)
+        waitUntilHittable(settings, false, "Right-to-left swipe should CLOSE the side menu")
 
-        menuButton.tap()
+        openMenu(app)
         waitUntilHittable(settings, true, "Menu should reopen; app must stay interactive after toggling")
     }
 
@@ -69,10 +83,7 @@ final class TelepathAVRUITests: XCTestCase {
     func testMenuReceiversItemPresentsSheet() throws {
         let app = launchApp()
 
-        let menuButton = app.buttons["menuButton"]
-        XCTAssertTrue(menuButton.waitForExistence(timeout: 5))
-        menuButton.tap()
-
+        openMenu(app)
         let receivers = app.buttons["Receivers"]
         waitUntilHittable(receivers, true, "Receivers item should be visible when the menu is open")
         receivers.tap()
@@ -86,10 +97,7 @@ final class TelepathAVRUITests: XCTestCase {
     func testMenuGeneralItemPresentsSettings() throws {
         let app = launchApp()
 
-        let menuButton = app.buttons["menuButton"]
-        XCTAssertTrue(menuButton.waitForExistence(timeout: 5))
-        menuButton.tap()
-
+        openMenu(app)
         let general = app.buttons["General"]
         waitUntilHittable(general, true, "General item should be visible when the menu is open")
         general.tap()
@@ -103,10 +111,7 @@ final class TelepathAVRUITests: XCTestCase {
     func testMenuThemeItemShowsThemePicker() throws {
         let app = launchApp()
 
-        let menuButton = app.buttons["menuButton"]
-        XCTAssertTrue(menuButton.waitForExistence(timeout: 5))
-        menuButton.tap()
-
+        openMenu(app)
         let theme = app.buttons["Theme"]
         waitUntilHittable(theme, true, "Theme item should be visible when the menu is open")
         theme.tap()

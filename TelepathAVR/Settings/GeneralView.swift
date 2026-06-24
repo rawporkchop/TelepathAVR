@@ -105,7 +105,7 @@ struct GeneralView: View {
                 }
                 
                 Section(header: Text("Side Menu Cosmetics"),
-                        footer: Text("Using the hamburger menu or swiping will cause the View to be rotated. Disable to simplify.")) {
+                        footer: Text("Swiping in from the left edge flips the View open in 3D to reveal the menu. Disable to simply slide it aside.")) {
                     Toggle("Enable Rotation Effect", isOn: $rotatesWhenExpands)
                         .switchFeedback(rotatesWhenExpands)
                 }

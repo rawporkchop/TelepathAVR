@@ -27,8 +27,8 @@ struct ContentView: View {
     @State private var showGeneralView = false
     @State private var showThemeView = false
     @State private var showAboutSheet = false
-    @State private var showMenu: Bool = false
-    
+    @StateObject private var drawer = DrawerController()
+
     // Zones
     @State private var zonesShowing: [Zone] = [.one]
     @State private var zonesInReserve: [Zone] = [.two, .three]
@@ -41,7 +41,7 @@ struct ContentView: View {
     
     // Tutorial
     @AppStorage("showingAlert") private var showingAlert = true
-    
+
     var body: some View {
         let height = screenSize.height + zoneHeightsOffset
         let width = screenSize.width
@@ -51,7 +51,7 @@ struct ContentView: View {
                 disablesInteraction: true,
                 sideMenuWidth: 200,
                 cornerRadius: 25,
-                showMenu: $showMenu
+                drawer: drawer
             ) { safeArea in
                 NavigationStack {
                     ZStack {
@@ -62,36 +62,29 @@ struct ContentView: View {
                             endRadius: 500
                         )
                         .scaleEffect(2)
-                        
+
                         // Volume Sliders
                         HStack {
                             resizableSlider(zone: .one, size: screenSize, height: height, width: width)
                             resizableSlider(zone: .two, size: screenSize, height: height, width: width)
                             resizableSlider(zone: .three, size: screenSize, height: height, width: width)
                         }
-                        
-                        // Tool Bar Button
+
+                        // The menu opens with a left-to-right edge swipe, so the leading toolbar
+                        // only carries the demo indicator now.
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
-                                HStack {
-                                    Button(action: { showMenu.toggle() }) {
-                                        Image(systemName: showMenu ? "xmark" : "line.3.horizontal")
-                                            .foregroundStyle(.white)
-                                            .contentTransition(.symbolEffect)
-                                    }
-                                    .accessibilityIdentifier("menuButton")
-                                    Text("Demo")
-                                        .visible(connection.isDemoActive)
-                                        .font(.title3)
-                                        .foregroundStyle(.white)
-                                }
+                                Text("Demo")
+                                    .visible(connection.isDemoActive)
+                                    .font(.title3)
+                                    .foregroundStyle(.white)
                             }
                         }
                     }
                 }
             } menuView: { safeArea in
                 SideBarMenuView(safeArea)
-                
+
                 if showThemeView {
                     ThemeView(safeArea)
                         .transition(.move(edge: .leading))
@@ -100,9 +93,19 @@ struct ContentView: View {
             } background: {
                 Rectangle().fill(.sideMenu)
             }
-            .id("\(showMenu)-\(showThemeView)")
+            // The drawer animates open/close smoothly via its own display-clock driver, so `isOpen`
+            // is intentionally NOT in this `.id`. The Theme sub-page IS reactive content the drawer
+            // can't otherwise refresh on iOS 26, so re-`id` on `showThemeView` to rebuild it in/out.
+            .id(showThemeView)
             .onAppear {
                 initializeApp()
+            }
+            .task {
+                guard UserDefaults.standard.bool(forKey: "animTest") else { return }
+                while !Task.isCancelled {
+                    try? await Task.sleep(nanoseconds: 2_500_000_000)
+                    withAnimation(.easeInOut(duration: 1.2)) { drawer.isOpen.toggle() }
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: .settingsChanged)) { _ in
                 getSettings()
@@ -122,7 +125,7 @@ struct ContentView: View {
             )
         .alert("Proceed to connect to an audio receiver?", isPresented: $showingAlert) {
             Button("Continue") {
-                showMenu = true
+                drawer.isOpen = true
                 showReceiversSheet = true
             }
             Button("No") {
@@ -132,18 +135,18 @@ struct ContentView: View {
         .hideVolumeHUD()
         .simultaneousGesture(DragGesture().onEnded(handleDragGesture))
     }
-    
+
     private func initializeApp() {
         guard !connection.isConnected else { return }
         connection.start(receiver: selectedReceiver.receiver)
         print("Starting connection")
         getSettings()
         loadColorSettings()
-        
+
     }
     
     private func handleDragGesture(_ value: DragGesture.Value) {
-        guard value.startLocation.x > 50, !showMenu, !isResizing, zonesEnabled, !showGeneralView else { return }
+        guard value.startLocation.x > 50, !drawer.isOpen, !isResizing, zonesEnabled, !showGeneralView else { return }
         
         let xTranslation = value.translation.width
         withAnimation(.snappy(duration: 0.5, extraBounce: 0.15)) {

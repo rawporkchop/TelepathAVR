@@ -43,8 +43,13 @@ struct TelepathAVRApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-               
+            // Launch with `-prototypeCapture YES` to preview the side-menu animation
+            // gallery full-screen (auto-looping). Defaults to false → normal app.
+            if UserDefaults.standard.bool(forKey: "prototypeCapture") {
+                PrototypeCaptureRoot()
+            } else {
+                ContentView()
+            }
         }
     }
 }
