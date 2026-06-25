@@ -321,8 +321,10 @@ struct ContentView: View {
                         }), alignment: .bottomTrailing
             )
             // The slider is conditionally present via the `ForEach(zones.showing)`, so a swipe that
-            // adds/removes its zone slides it in/out from the trailing edge within the existing HStack.
-            .transition(.move(edge: .trailing))
+            // adds/removes its zone slides it fully in from / out past the right screen edge. Offset
+            // by a whole screen width (not `.move(edge:)`, which only travels the slider's own width)
+            // so it clears the screen completely regardless of its resting position.
+            .transition(.offset(x: size.width))
     }
     
     func AboutView() -> some View {
