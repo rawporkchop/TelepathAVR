@@ -7,6 +7,42 @@
 
 import SwiftUI
 
+/// Visible/reserve zone sets as a **reference type**, read live every frame by the content closure
+/// inside `AnimatedSideBar`'s display clock. On iOS 26 the drawer's `body` is never re-invoked when
+/// its inputs change (see `DrawerController`), so a zone change made through `@State` never reaches
+/// the captured content closure. Holding the sets on a stable reference lets the closure read the
+/// current `showing` every frame, so a `ForEach` over it can add/remove a slider **within the
+/// existing container** — animating the insert/removal with a slide transition — instead of re-`id`-ing
+/// (and rebuilding) the whole `AnimatedSideBar`.
+final class ZoneController: ObservableObject {
+    @Published var showing: [Zone]
+    @Published var reserve: [Zone]
+
+    init(showing: [Zone] = [.one], reserve: [Zone] = [.two, .three]) {
+        self.showing = showing
+        self.reserve = reserve
+    }
+
+    /// Reveal the next reserved zone (right-to-left swipe). Returns whether anything changed.
+    @discardableResult
+    func add() -> Bool {
+        guard let next = reserve.first else { return false }
+        showing.append(next)
+        reserve.removeFirst()
+        return true
+    }
+
+    /// Hide the last visible zone (left-to-right swipe). At least one slider always stays shown, so
+    /// Main (.one) is never removed. Returns whether anything changed.
+    @discardableResult
+    func remove() -> Bool {
+        guard showing.count > 1, let last = showing.last else { return false }
+        reserve.insert(last, at: 0)
+        showing.removeLast()
+        return true
+    }
+}
+
 struct ContentView: View {
 
     // Receiver
@@ -29,9 +65,9 @@ struct ContentView: View {
     @State private var showAboutSheet = false
     @StateObject private var drawer = DrawerController()
 
-    // Zones
-    @State private var zonesShowing: [Zone] = [.one]
-    @State private var zonesInReserve: [Zone] = [.two, .three]
+    // Zones — held on a reference type so the content closure can read the live `showing` set every
+    // frame (see ZoneController); `@State` here would be snapshotted into the stale captured closure.
+    @StateObject private var zones = ZoneController()
     @State private var zoneWidths: CGFloat = 130
     @State private var zoneHeightsOffset: CGFloat = 0
     @State private var lastXDragValue: CGFloat = 0
@@ -44,7 +80,6 @@ struct ContentView: View {
 
     var body: some View {
         let height = screenSize.height + zoneHeightsOffset
-        let width = screenSize.width
 
         return AnimatedSideBar(
                 rotatesWhenExpands: $rotatesWhenExpands,
@@ -63,12 +98,20 @@ struct ContentView: View {
                         )
                         .scaleEffect(2)
 
-                        // Volume Sliders
+                        // Volume Sliders — driven by the live `zones.showing` set so a swipe
+                        // adds/removes a slider in THIS HStack (each slides in/out from the trailing
+                        // edge via the resizableSlider's `.transition`), rather than rebuilding the
+                        // whole container. The slide is driven by `.animation(value:)` (NOT a
+                        // `withAnimation` at the mutation site): the content re-renders every frame
+                        // inside AnimatedSideBar's display clock, so the modifier catches the
+                        // `showing` change at render time and animates the ForEach transition — a
+                        // `withAnimation` transaction would not reach this nested, clock-driven diff.
                         HStack {
-                            resizableSlider(zone: .one, size: screenSize, height: height, width: width)
-                            resizableSlider(zone: .two, size: screenSize, height: height, width: width)
-                            resizableSlider(zone: .three, size: screenSize, height: height, width: width)
+                            ForEach(zones.showing) { zone in
+                                resizableSlider(zone: zone, size: screenSize, height: height)
+                            }
                         }
+                        .animation(.snappy(duration: 0.5, extraBounce: 0.15), value: zones.showing)
 
                         // The menu opens with a left-to-right edge swipe, so the leading toolbar
                         // only carries the demo indicator now.
@@ -95,7 +138,10 @@ struct ContentView: View {
             }
             // The drawer animates open/close smoothly via its own display-clock driver, so `isOpen`
             // is intentionally NOT in this `.id`. The Theme sub-page IS reactive content the drawer
-            // can't otherwise refresh on iOS 26, so re-`id` on `showThemeView` to rebuild it in/out.
+            // can't otherwise refresh on iOS 26 (AnimatedSideBar.body is never re-invoked), so re-`id`
+            // on `showThemeView` to rebuild it in/out. The zone set is NOT in the `.id` — it lives on
+            // the `zones` reference read live by the content closure, so adding/removing a slider
+            // updates this same container (and slides) without a rebuild.
             .id(showThemeView)
             .onAppear {
                 initializeApp()
@@ -149,26 +195,22 @@ struct ContentView: View {
         guard value.startLocation.x > 50, !drawer.isOpen, !isResizing, zonesEnabled, !showGeneralView else { return }
         
         let xTranslation = value.translation.width
-        withAnimation(.snappy(duration: 0.5, extraBounce: 0.15)) {
-            if xTranslation < -100 {
-                addZoneToShow()
-            } else if xTranslation > 100 {
-                removeZoneFromShow()
-            }
+        // The slide is animated by `.animation(value: zones.showing)` on the slider HStack, not here:
+        // a `withAnimation` transaction does not reach the clock-driven content diff (it snaps).
+        if xTranslation < -100 {
+            addZoneToShow()
+        } else if xTranslation > 100 {
+            removeZoneFromShow()
         }
     }
     
     private func addZoneToShow() {
-        guard let addedZone = zonesInReserve.first else { return }
-        zonesShowing.append(addedZone)
-        zonesInReserve.removeFirst()
+        guard zones.add() else { return }
         notifySliderVisibilityChanged()
     }
-    
+
     private func removeZoneFromShow() {
-        guard let removedZone = zonesShowing.last else { return }
-        zonesInReserve.insert(removedZone, at: 0)
-        zonesShowing.removeLast()
+        guard zones.remove() else { return }
         notifySliderVisibilityChanged()
     }
     
@@ -262,12 +304,9 @@ struct ContentView: View {
         }
     }
     
-    func resizableSlider(zone: Zone, size: CGSize, height: CGFloat, width: CGFloat) -> some View {
+    func resizableSlider(zone: Zone, size: CGSize, height: CGFloat) -> some View {
         VolumeSlider(zone: zone)
             .frame(maxWidth: zoneWidths, maxHeight: height)
-            .offset(x: zonesShowing.contains(zone) ? 0 : width)
-            .transition(.move(edge: .trailing))
-            .visible(zonesShowing.contains(zone))
             .overlay(
                 Rectangle()
                     .fill(Color.white.opacity(0.001))
@@ -281,6 +320,9 @@ struct ContentView: View {
                             resetResizing()
                         }), alignment: .bottomTrailing
             )
+            // The slider is conditionally present via the `ForEach(zones.showing)`, so a swipe that
+            // adds/removes its zone slides it in/out from the trailing edge within the existing HStack.
+            .transition(.move(edge: .trailing))
     }
     
     func AboutView() -> some View {

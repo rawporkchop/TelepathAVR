@@ -42,6 +42,23 @@ final class TelepathAVRUITests: XCTestCase {
         start.press(forDuration: 0.05, thenDragTo: end)
     }
 
+    // Right-to-left background swipe — summons the next zone slider (startLocation well past the
+    // 28pt leading open-strip, translation strongly negative to clear the -100 threshold).
+    @MainActor
+    private func swipeAddZone(_ app: XCUIApplication) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.5))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+
+    // Left-to-right background swipe — dismisses the last summoned zone slider.
+    @MainActor
+    private func swipeRemoveZone(_ app: XCUIApplication) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+
     // The menu's visibility is best detected via isHittable (the menu may exist off-screen).
     @MainActor
     private func waitUntilHittable(_ element: XCUIElement,
@@ -118,6 +135,54 @@ final class TelepathAVRUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["Custom"].waitForExistence(timeout: 4),
                       "Tapping Theme should reveal the theme picker")
+    }
+
+    // A right-to-left background swipe must SUMMON the next zone slider, and a left-to-right swipe
+    // must DISMISS it again. Paced with pauses so a concurrent screen recording isolates each
+    // trailing-edge slide for frame inspection.
+    @MainActor
+    func testZoneSwipeSummonsAndDismissesSliders() throws {
+        let app = launchApp()
+
+        let main = app.staticTexts["MAIN"]
+        XCTAssertTrue(main.waitForExistence(timeout: 4), "The Main zone slider should be visible at launch")
+        let zone2 = app.staticTexts["ZONE 2"]
+        XCTAssertFalse(zone2.exists, "Zone 2 should be absent before any swipe")
+
+        sleep(2) // stable 1-slider baseline in the recording
+        swipeAddZone(app)
+        XCTAssertTrue(zone2.waitForExistence(timeout: 4),
+                      "A right-to-left swipe should summon the Zone 2 slider")
+
+        sleep(2) // stable 2-slider state
+        let zone3 = app.staticTexts["ZONE 3"]
+        swipeAddZone(app)
+        XCTAssertTrue(zone3.waitForExistence(timeout: 4),
+                      "A second right-to-left swipe should summon the Zone 3 slider")
+
+        sleep(2) // stable 3-slider state
+        swipeRemoveZone(app)
+        XCTAssertTrue(main.waitForExistence(timeout: 4), "Main must remain after dismissing a zone")
+        XCTAssertFalse(app.staticTexts["ZONE 3"].isHittable,
+                       "A left-to-right swipe should dismiss the Zone 3 slider")
+        sleep(2) // stable 2-slider state
+    }
+
+    // The Main slider must always stay — a left-to-right swipe from the single-slider baseline is a
+    // no-op (minimum one slider is shown).
+    @MainActor
+    func testMainSliderIsNeverRemoved() throws {
+        let app = launchApp()
+        XCTAssertTrue(app.staticTexts["MAIN"].waitForExistence(timeout: 4),
+                      "The Main slider should be visible at launch")
+
+        swipeRemoveZone(app)
+        swipeRemoveZone(app)
+
+        XCTAssertTrue(app.staticTexts["MAIN"].exists,
+                      "Main slider must always remain — minimum one slider is shown")
+        XCTAssertFalse(app.staticTexts["ZONE 2"].exists,
+                       "Remove swipes from the baseline must not add a zone")
     }
 
     @MainActor

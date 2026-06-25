@@ -16,7 +16,25 @@ struct TelepathAVRApp: App {
     let audioSession = AudioSession.shared
     
     init() {
-        
+        // Fallback defaults for every user-facing setting, registered on EVERY launch (non-destructive:
+        // `register` never overrides values the user has explicitly set). The first-launch `setValue`
+        // block below only seeds keys once, so any install predating a given key would otherwise read
+        // it back as `false`/`0` — which silently disabled the zone-summon swipe (`zonesEnabled`) and
+        // friends for upgraders. This makes the raw `bool(forKey:)` reads agree with the `@AppStorage`
+        // defaults used in the settings UI.
+        UserDefaults.standard.register(defaults: [
+            "zonesEnabled": true,
+            "zoneTapEnabled": true,
+            "resizeable": true,
+            "allowsStretching": true,
+            "rotatesWhenExpands": true,
+            "volumeSideButtonsEnabled": true,
+            "zone1VolLimit": 80.0,
+            "zone2VolLimit": 80.0,
+            "zone3VolLimit": 80.0,
+            "selectedZone": Zone.one.rawValue,
+        ])
+
         if UserDefaults.standard.bool(forKey: "AppAlreadyLaunchedOnce") == false {
             
             UserDefaults.standard.setValue(true, forKey: "AppAlreadyLaunchedOnce")
