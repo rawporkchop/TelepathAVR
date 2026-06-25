@@ -638,7 +638,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0519202501;
 				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVR/Preview Content\"";
-				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				DEVELOPMENT_TEAM = KBUWGC9B53;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
@@ -654,7 +654,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = startup.Telepath;
+				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathHL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -674,7 +674,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0519202501;
 				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVR/Preview Content\"";
-				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
+				DEVELOPMENT_TEAM = KBUWGC9B53;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
@@ -690,7 +690,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = startup.Telepath;
+				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathHL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

@@ -267,6 +267,9 @@ struct VolumeSlider: View {
         .onAppear() {
             getSettings()
             loadColorSettings()
+            // Re-sync from the connection on (re)appearance so the slider shows the
+            // current volume immediately — e.g. when the view is rebuilt on menu toggle.
+            zonePercentProgress = getVolumePercent(zone)
         }
     
     

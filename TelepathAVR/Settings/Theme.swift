@@ -53,6 +53,9 @@ struct presetsList: View {
             }
             .onChange(of: presets) {
                 if !presets.isEmpty {
+                    if !presets.indices.contains(selectedPresetIndex) {
+                        selectedPresetIndex = presets.count - 1
+                    }
                     fetchColorSettings(selectedPresetIndex)
                 }
             }
@@ -221,7 +224,7 @@ struct presetsList: View {
         return presets.count - NUM_DEFAULT_PRESETS + 1
     }
     var presetName: String {
-        if presets.isEmpty {
+        guard presets.indices.contains(selectedPresetIndex) else {
             return ""
         }
         return presets[selectedPresetIndex].name
@@ -250,7 +253,7 @@ struct presetsList: View {
     }
     
     var isCustomPreset: Bool {
-        if presets.isEmpty {
+        guard presets.indices.contains(selectedPresetIndex) else {
             return true
         }
         return presets[selectedPresetIndex].id > NUM_DEFAULT_PRESETS
@@ -275,7 +278,7 @@ struct presetsList: View {
     }
     
     func fetchColorSettings(_ index: Int) {
-        if index > presets.count-1 {
+        guard presets.indices.contains(index) else {
             return
         }
         let preset = presets[index]
@@ -345,6 +348,7 @@ struct presetsList: View {
     }
     
     func createCopyPreset(of index: Int) {
+        guard presets.indices.contains(index) else { return }
         var preset: Preset = presets[index]
         preset.setName(name: "Custom \(getCustomPresetNumber())")
         preset.setID(id: getCustomPresetNumber() + NUM_DEFAULT_PRESETS)

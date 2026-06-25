@@ -27,8 +27,8 @@ struct ContentView: View {
     @State private var showGeneralView = false
     @State private var showThemeView = false
     @State private var showAboutSheet = false
-    @State private var showMenu: Bool = false
-    
+    @StateObject private var drawer = DrawerController()
+
     // Zones
     @State private var zonesShowing: [Zone] = [.one]
     @State private var zonesInReserve: [Zone] = [.two, .three]
@@ -37,25 +37,23 @@ struct ContentView: View {
     @State private var lastXDragValue: CGFloat = 0
     @State private var lastYDragValue: CGFloat = 0
     @State private var isResizing: Bool = false
+    @State private var screenSize: CGSize = UIScreen.main.bounds.size
     
     // Tutorial
     @AppStorage("showingAlert") private var showingAlert = true
-    
+
     var body: some View {
-        GeometryReader { geometry in
-            let height = geometry.size.height + zoneHeightsOffset
-            let width = geometry.size.width
-            
-            AnimatedSideBar(
+        let height = screenSize.height + zoneHeightsOffset
+        let width = screenSize.width
+
+        return AnimatedSideBar(
                 rotatesWhenExpands: $rotatesWhenExpands,
                 disablesInteraction: true,
                 sideMenuWidth: 200,
                 cornerRadius: 25,
-                showMenu: $showMenu
+                drawer: drawer
             ) { safeArea in
                 NavigationStack {
-                    NavigationLink(destination: GeneralView(), isActive: $showGeneralView) { EmptyView() }
-                    
                     ZStack {
                         RadialGradient(
                             gradient: Gradient(colors: gradientColors),
@@ -64,35 +62,29 @@ struct ContentView: View {
                             endRadius: 500
                         )
                         .scaleEffect(2)
-                        
+
                         // Volume Sliders
                         HStack {
-                            resizableSlider(zone: .one, geometry: geometry, height: height, width: width)
-                            resizableSlider(zone: .two, geometry: geometry, height: height, width: width)
-                            resizableSlider(zone: .three, geometry: geometry, height: height, width: width)
+                            resizableSlider(zone: .one, size: screenSize, height: height, width: width)
+                            resizableSlider(zone: .two, size: screenSize, height: height, width: width)
+                            resizableSlider(zone: .three, size: screenSize, height: height, width: width)
                         }
-                        
-                        // Tool Bar Button
+
+                        // The menu opens with a left-to-right edge swipe, so the leading toolbar
+                        // only carries the demo indicator now.
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
-                                HStack {
-                                    Button(action: { showMenu.toggle() }) {
-                                        Image(systemName: showMenu ? "xmark" : "line.3.horizontal")
-                                            .foregroundStyle(.white)
-                                            .contentTransition(.symbolEffect)
-                                    }
-                                    Text("Demo")
-                                        .visible(connection.isDemoActive)
-                                        .font(.title3)
-                                        .foregroundStyle(.white)
-                                }
+                                Text("Demo")
+                                    .visible(connection.isDemoActive)
+                                    .font(.title3)
+                                    .foregroundStyle(.white)
                             }
                         }
                     }
                 }
             } menuView: { safeArea in
                 SideBarMenuView(safeArea)
-                
+
                 if showThemeView {
                     ThemeView(safeArea)
                         .transition(.move(edge: .leading))
@@ -101,8 +93,19 @@ struct ContentView: View {
             } background: {
                 Rectangle().fill(.sideMenu)
             }
+            // The drawer animates open/close smoothly via its own display-clock driver, so `isOpen`
+            // is intentionally NOT in this `.id`. The Theme sub-page IS reactive content the drawer
+            // can't otherwise refresh on iOS 26, so re-`id` on `showThemeView` to rebuild it in/out.
+            .id(showThemeView)
             .onAppear {
                 initializeApp()
+            }
+            .task {
+                guard UserDefaults.standard.bool(forKey: "animTest") else { return }
+                while !Task.isCancelled {
+                    try? await Task.sleep(nanoseconds: 2_500_000_000)
+                    withAnimation(.easeInOut(duration: 1.2)) { drawer.isOpen.toggle() }
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: .settingsChanged)) { _ in
                 getSettings()
@@ -112,10 +115,17 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showReceiversSheet) { ReceiversView().environmentObject(connection) }
             .sheet(isPresented: $showAboutSheet) { AboutView() }
-        }
+            .sheet(isPresented: $showGeneralView) { GeneralView() }
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { screenSize = geo.size }
+                        .onChange(of: geo.size) { screenSize = geo.size }
+                }
+            )
         .alert("Proceed to connect to an audio receiver?", isPresented: $showingAlert) {
             Button("Continue") {
-                showMenu = true
+                drawer.isOpen = true
                 showReceiversSheet = true
             }
             Button("No") {
@@ -125,18 +135,18 @@ struct ContentView: View {
         .hideVolumeHUD()
         .simultaneousGesture(DragGesture().onEnded(handleDragGesture))
     }
-    
+
     private func initializeApp() {
         guard !connection.isConnected else { return }
         connection.start(receiver: selectedReceiver.receiver)
         print("Starting connection")
         getSettings()
         loadColorSettings()
-        
+
     }
     
     private func handleDragGesture(_ value: DragGesture.Value) {
-        guard value.startLocation.x > 50, !showMenu, !isResizing, zonesEnabled, !showGeneralView else { return }
+        guard value.startLocation.x > 50, !drawer.isOpen, !isResizing, zonesEnabled, !showGeneralView else { return }
         
         let xTranslation = value.translation.width
         withAnimation(.snappy(duration: 0.5, extraBounce: 0.15)) {
@@ -252,7 +262,7 @@ struct ContentView: View {
         }
     }
     
-    func resizableSlider(zone: Zone, geometry: GeometryProxy, height: CGFloat, width: CGFloat) -> some View {
+    func resizableSlider(zone: Zone, size: CGSize, height: CGFloat, width: CGFloat) -> some View {
         VolumeSlider(zone: zone)
             .frame(maxWidth: zoneWidths, maxHeight: height)
             .offset(x: zonesShowing.contains(zone) ? 0 : width)
@@ -265,7 +275,7 @@ struct ContentView: View {
                     .frame(width: 40, height: 40)
                     .highPriorityGesture(DragGesture(minimumDistance: 0)
                         .onChanged { value in
-                            handleSliderResize(value, geometry: geometry)
+                            handleSliderResize(value, size: size)
                         }
                         .onEnded { _ in
                             resetResizing()
@@ -287,17 +297,17 @@ struct ContentView: View {
         }
     }
     
-    private func handleSliderResize(_ value: DragGesture.Value, geometry: GeometryProxy) {
+    private func handleSliderResize(_ value: DragGesture.Value, size: CGSize) {
         guard resizeable else { return }
         isResizing = true
         let xTranslation = value.translation.width - lastXDragValue
         zoneWidths += xTranslation
-        zoneWidths = max(120, min(geometry.size.width, zoneWidths))
+        zoneWidths = max(120, min(size.width, zoneWidths))
         lastXDragValue = value.translation.width
-        
+
         let yTranslation = value.translation.height - lastYDragValue
         zoneHeightsOffset += yTranslation
-        zoneHeightsOffset = max(-geometry.size.height / 2, min(0, zoneHeightsOffset))
+        zoneHeightsOffset = max(-size.height / 2, min(0, zoneHeightsOffset))
         lastYDragValue = value.translation.height
     }
     
