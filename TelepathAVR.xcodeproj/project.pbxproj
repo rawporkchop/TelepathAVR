@@ -65,6 +65,7 @@
 		A781C67A2DDBACF1006B0C0C /* Exceptions for "TelepathAVR" folder in "TelepathAVR" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Info.plist,
 				"Preview Content/Preview Assets.xcassets",
 			);
 			target = A755BF9C2D34D62E0084B87F /* TelepathAVR */;
@@ -636,12 +637,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0519202501;
+				CURRENT_PROJECT_VERSION = 0625202601;
 				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVR/Preview Content\"";
-				DEVELOPMENT_TEAM = KBUWGC9B53;
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = TelepathAVR/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TelepathAVR;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Network Connection Required to Communicate with Receiver";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -653,8 +654,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathHL;
+				MARKETING_VERSION = 2.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = startup.Telepath;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -672,12 +673,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0519202501;
+				CURRENT_PROJECT_VERSION = 0625202601;
 				DEVELOPMENT_ASSET_PATHS = "\"TelepathAVR/Preview Content\"";
-				DEVELOPMENT_TEAM = KBUWGC9B53;
+				DEVELOPMENT_TEAM = 7Q2UN5YS5T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = TelepathAVR/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TelepathAVR;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Network Connection Required to Communicate with Receiver";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -689,8 +690,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = startup.TelepathHL;
+				MARKETING_VERSION = 2.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = startup.Telepath;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

@@ -10,7 +10,7 @@ import Network
 
 final class Browser: ObservableObject
 {
-    private var serviceType = "_http._tcp."
+    private var serviceType = "_http._tcp"
     
     var browser: NWBrowser
     @Published var endpoints: Set<SimpleEndpoint> {
