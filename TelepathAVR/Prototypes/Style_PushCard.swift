@@ -41,6 +41,7 @@ extension DrawerStyle {
 
                     // Content = the card pushed back into the stack, hinged on its leading edge.
                     content
+                    /*
                         .overlay(
                             // A thin bright specular highlight skimming the top edge — sells the
                             // glossy lifted slab as it floats above the menu.
@@ -51,6 +52,8 @@ extension DrawerStyle {
                             )
                             .allowsHitTesting(false)
                         )
+                     */
+                    
                         .overlay(
                             // Ambient occlusion: the leading edge darkens slightly as it turns
                             // away from the viewer, deepening the pushed-back read.
